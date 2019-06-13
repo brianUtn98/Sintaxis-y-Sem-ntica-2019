@@ -2,7 +2,9 @@
 #include<conio.h>
 #include<stdlib.h>
 #include<string.h>
-
+/*
+Reemplaza una palabra pedida por teclado por otra en un archivo de texto.
+*/
 int main()
 {
 FILE *f1,*f2;
