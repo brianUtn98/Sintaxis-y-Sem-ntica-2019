@@ -1,7 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<conio.h>
-
+/*
+Dado un archivo de texto, crea uno nuevo cambiando todas las letras 'a' por 'e'.
+*/
 int main()
 {
 FILE *f1,*f2;
