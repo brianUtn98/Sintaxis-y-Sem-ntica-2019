@@ -2,7 +2,9 @@
 #include<stdlib.h>
 #include<conio.h>
 #include<string.h>
-
+/*
+Dadas dos cadenas, encripta la primera sumandole caracter por caracter la segunda.
+*/
 int main()
 {
 int i=0;
