@@ -2,7 +2,6 @@
 #include<stdio.h>
 #include<conio.h>
 #include <stdlib.h>
-#include <locale.h>
 
 
 
@@ -30,8 +29,8 @@ char menu(); /* Función para general el menú del TP*/
 float convertirFloat(char []); /* Función hallada en linea, para convertir un string en float (reemplaza a atof)*/
 void cargarEspecie(struct accion*,int,char[]); /*Función utilizada para crear la estructura estática de las especies*/
 void mostrarEspecie(struct accion); /*Función de testeo, utilizada en el desarrollo del programa pero no implementada finalmente*/
-
-
+void crearCSV(struct accion[],int); /*Funcion para la creacion del reporte en formato .CSV*/
+void crearHTML(struct accion[],int);
 
 
 FILE *popen(const char *command, const char *mode);
@@ -48,13 +47,16 @@ int main(int argc,char *argv)
     char buffer[1048576];
     char *token;
 
+printf("Presione una tecla para empezar.");
+getche();
 
-
-do
+    do
     {
-    system("cls");
     opcion=menu();
     system("cls");
+            if(opcion!=27 && (opcion=='1' || opcion=='2' || opcion=='3')) // Si la opcion es correcta
+            {
+
             printf("\n------------------------------------------------------------\n");
             printf("Parseando http://52.67.191.9/SSL/lideres-bcba_limpio.html");
             printf("\n------------------------------------------------------------\n");
@@ -92,38 +94,67 @@ do
             i++;
 
             }
+            rewind(cmd);
+            }//Fin IF
 
 
-            /*token=strtok(buffer,"<td>");
-            strcpy(especies[i].especie,token);
-            */
-    pclose(cmd);
 
         switch(opcion)
         {
         case '1':
-            printf("Se eligio opcion 1");
-            getche();
+            system("cls");
+            printf("Listado de especies con variacion superior al 0.5 porciento.\n");
             for(k=0;k<20;k++)
             {
                 if(especies[k].variacion>0.5)
                 mostrarEspecie(especies[k]);
             }
+        printf("\nPresione una tecla para continuar...");
         getche();
+        break;
+        case '2':
+            system("cls");
+            printf("Creando archivo .CSV...\n");
+                crearCSV(especies,20);
+            printf("Reporte creado de forma correcta.");
+            printf("\nPresione una tecla para continuar...");
+            getche();
+        break;
+        case '3':
+            system("cls");
+            printf("Creando reporte .html...\n");
+                crearHTML(especies,20);
+            printf("Reporte creado de forma correcta.");
+            printf("\nPresione una tecla para continuar.");
+        break;
+        case 27:
+        break;
+        default:
+            printf("\nSeleccione una opcion correcta.");
+            printf("\nPresione una tecla para continuar...");
+            getche();
         break;
         }
 
     }
     while(opcion!=27);
+         pclose(cmd);
+
+            printf("\nSaliendo del programa.");
+            printf("\nPresione una tecla para continuar...");
+            getche();
+
+return 0;
 }
 
 char menu()
 {
 char opcion;
+    system("cls");
     printf("\n[1] Listar en pantalla las especies cuyo porcentaje de variacion supera el 0,5.");
     printf("\n[2] Crear reporte de cotizaciones de compra y venta en archivo .CSV.");
-    printf("\n[3] Crear reporte de cotizaciones de compra y venta en archivo .html.\n");
-    printf("\nESc. Salir.");
+    printf("\n[3] Crear reporte de cotizaciones de compra y venta en archivo .html.");
+    printf("\n[ESS] Salir.");
     opcion=getche();
 
 return opcion;
@@ -154,7 +185,6 @@ return res;
 
 void cargarEspecie(struct accion *accion,int campo,char s[1048576])
 {
-setlocale(LC_ALL|~LC_NUMERIC, ""); // No funcionó
 int campoNum;
 double campoFloat;
     switch(campo)
@@ -244,4 +274,50 @@ void mostrarEspecie(struct accion accion)
     printf("\nCant. Operada: %d ",accion.cantidadOperada);
     printf("\nHora: %s ",accion.horas);
 
+}
+
+void crearCSV(struct accion acciones[],int tam)
+{
+FILE *f;
+int i=0;
+f=fopen("Listado de cotizaciones compra y venta.csv","w");
+
+    fprintf(f,"Especie,Precio de compra,Precio de venta,Apertura,Precio maximo,Precio minimo");
+
+    for(i=0;i<tam;i++)
+    {
+    fprintf(f,"\n");
+    fprintf(f,"%s,%f,%f,%f,%f,%f",acciones[i].especie,acciones[i].precioCompra,acciones[i].precioVenta,acciones[i].apertura,acciones[i].maximo,acciones[i].minimo);
+    }
+fclose(f);
+}
+
+void crearHTML(struct accion acciones[],int tam)
+{
+FILE *f;
+int i=0;
+f=fopen("Listado de especies.html","w");
+    fprintf(f,"<html>\n<body>");
+    fprintf(f,"<head><title>Mi primera página con estilo</title><style type=\"text/css\">table .critico{background-color: #ff0000 }</style></head>)");
+    fprintf(f,"<table border=1>\n<tr>");
+    fprintf(f,"\n<td>Especie</td><td>Cant. Nominal</td><td>Precio Compra</td><td>Precio Venta</td><td>Cant. Nominal</td><td>Ultimo</td><td>Variacion %</td><td>Apertura</td><td>Maximo</td><td>Minimo</td><td>Cierre Ant.</td><td>Vol. Nominal</td><td>Monto operado ($)</td><td>Cant. Ope</td><td>Hora Cotizacion</td>");
+    fprintf(f,"\n</tr>");
+        for(i=0;i<tam;i++)
+        {
+            if(acciones[i].precioCompra<acciones[i].apertura && acciones[i].precioVenta<acciones[i].apertura)
+            {
+            fprintf(f,"\n<tr class=\"critico\">");
+            fprintf(f,"<td>%s</td><td>%d</td><td>%.3f</td><td>%.3f</td><td>%d</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td><td>%s</td><td>%d</td><td>%s</td>",acciones[i].especie,acciones[i].cantNominalA,acciones[i].precioCompra,acciones[i].precioVenta,acciones[i].cantNominalB,acciones[i].ultimo,acciones[i].variacion,acciones[i].apertura,acciones[i].maximo,acciones[i].minimo,acciones[i].cierreAnterior,acciones[i].volNominal,acciones[i].montoOperado,acciones[i].cantidadOperada,acciones[i].horas);
+            fprintf(f,"\n</tr>");
+            }
+            else
+            {
+            fprintf(f,"\n<tr>");
+            fprintf(f,"<td>%s</td><td>%d</td><td>%.3f</td><td>%.3f</td><td>%d</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td><td>%s</td><td>%d</td><td>%s</td>",acciones[i].especie,acciones[i].cantNominalA,acciones[i].precioCompra,acciones[i].precioVenta,acciones[i].cantNominalB,acciones[i].ultimo,acciones[i].variacion,acciones[i].apertura,acciones[i].maximo,acciones[i].minimo,acciones[i].cierreAnterior,acciones[i].volNominal,acciones[i].montoOperado,acciones[i].cantidadOperada,acciones[i].horas);
+            fprintf(f,"\n</tr>");
+            }
+        }
+    fprintf(f,"\n</table>");
+    fprintf(f,"\n</body>\n</html>");
+fclose(f);
 }
