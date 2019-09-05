@@ -28,9 +28,9 @@ char horas[7+1];
 char menu(); /* Función para general el menú del TP*/
 float convertirFloat(char []); /* Función hallada en linea, para convertir un string en float (reemplaza a atof)*/
 void cargarEspecie(struct accion*,int,char[]); /*Función utilizada para crear la estructura estática de las especies*/
-void mostrarEspecie(struct accion); /*Función de testeo, utilizada en el desarrollo del programa pero no implementada finalmente*/
+void mostrarEspecie(struct accion); /*Funcion que dada una accion, muestra en pantalla todos sus campos*/
 void crearCSV(struct accion[],int); /*Funcion para la creacion del reporte en formato .CSV*/
-void crearHTML(struct accion[],int);
+void crearHTML(struct accion[],int); /*Función para creación del reporte en formato .html*/
 
 
 FILE *popen(const char *command, const char *mode);
@@ -39,15 +39,22 @@ int pclose(FILE *stream);
 int main(int argc,char *argv)
 {
     int i=0,j=0,k=0;
-    struct accion especies[20];
-    char command[] = ".\\GnuWin32\\bin\\wget -q --user-agent=\"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\" -O - http://52.67.191.9/SSL/lideres-bcba_limpio.html";
+    struct accion especies[20]; //Vector estatico de 20 acciones.
+    char command[] = ".\\GnuWin32\\bin\\wget -q -nv --user-agent=\"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\" -O - http://52.67.191.9/SSL/lideres-bcba_limpio.html ";
     FILE *cmd = popen(command, "r");
 
     char opcion;
     char buffer[1048576];
     char *token;
-
-printf("Presione una tecla para empezar.");
+getche();
+system("cls");
+printf("\n\n\n");
+printf("\n\t\t\t------------------------------------------------------------\n");
+printf("\t\t\t\t\tBruniard, Pedro");
+printf("\n\t\t\t\t\tMonroy Brian");
+printf("\n\t\t\t\t\tSanchez David");
+printf("\n\n\n\t\t\t\tPresione una tecla para empezar.");
+printf("\n\t\t\t------------------------------------------------------------\n");
 getche();
 
     do
@@ -55,51 +62,51 @@ getche();
     opcion=menu();
     system("cls");
             if(opcion!=27 && (opcion=='1' || opcion=='2' || opcion=='3')) // Si la opcion es correcta
-            {
+            {//Inicio If 1
 
             printf("\n------------------------------------------------------------\n");
             printf("Parseando http://52.67.191.9/SSL/lideres-bcba_limpio.html");
             printf("\n------------------------------------------------------------\n");
 
             while(fscanf(cmd,"%s",&buffer) && strcmp(buffer,"<td>Especie</td><td>Vto.</td><td>Cant.")!=0  && !feof(cmd))// Este while descarta la mayor parte de la tabla.
-            {
+            {//Inicia while 1
 
-            }
+            }//Fin while 1
             while(fscanf(cmd,"%s",&buffer) && strcmp(buffer,"</tr>")!=0 && !feof(cmd)) // Este while nos posiciona al inicio de las acciones
-            {
+            {//Inicia while 2
 
-            }
+            }//Fin while 2
 
             while(fscanf(cmd,"%s",&buffer) && strcmp(buffer,"</table>")!=0 && !feof(cmd)) // Con este while se comienzan a guardar los campos de las acciones en un token.
-            {
+            {//Inicia while 3
 
-                token=strtok(buffer,"<td>");
-                strcpy(especies[i].especie,token);
+                token=strtok(buffer,"<td>"); //Filtro la primer parte del texto, para guardar el nombre de la especie.
+                strcpy(especies[i].especie,token); // Guardo el nombre de la especie
 
-                    while(fscanf(cmd,"%s",&buffer) && strcmp(buffer,"</tr>")!=0)
-                    {
-                        token=strtok(buffer,"</td>");
-                        cargarEspecie(&especies[i],j,token);
+                    while(fscanf(cmd,"%s",&buffer) && strcmp(buffer,"</tr>")!=0) // Leo hasta terminar la fila.
+                    {//Inicia while 4
+                        token=strtok(buffer,"</td>"); // Voy filtrando el texto, separando en token los campos, que estan separados entre de la forma <td> Campo </td>
+                        cargarEspecie(&especies[i],j,token); // Cargo a la especie de la posicion i, en el campo j, el token.
 
                              while(token != NULL)
-                                {
-                                 j++;
+                                {//Inicia while 5
+                                 j++; //A medida que avanza, significa que cambia el campo a grabar. Por ej, el campo 14 es el monto operado
                                 token = strtok(NULL, "</td>");
                                cargarEspecie(&especies[i],j,token);
-                                }
+                                }//Fin while 5
 
-                    }
-                    j=0;
+                    }//Fin while 4
+                    j=0; // Una vez que termine de cargar una accion por completo, reinicio el contador.
 
-            i++;
+            i++; // Una vez terminado el ingreso de la accion, paso a la siguiente
 
-            }
-            rewind(cmd);
-            }//Fin IF
+            }//Fin while 3
+            rewind(cmd); //Se posiciona al inicio del archivo. Esta pensado para que cada vez que se pida un reporte, se parsee desde 0.
+            }//Fin If 1
 
 
 
-        switch(opcion)
+        switch(opcion) // Selector del menu
         {
         case '1':
             system("cls");
@@ -113,7 +120,7 @@ getche();
         getche();
         break;
         case '2':
-            system("cls");
+            //system("cls");
             printf("Creando archivo .CSV...\n");
                 crearCSV(especies,20);
             printf("Reporte creado de forma correcta.");
@@ -121,11 +128,12 @@ getche();
             getche();
         break;
         case '3':
-            system("cls");
+          //  system("cls");
             printf("Creando reporte .html...\n");
                 crearHTML(especies,20);
             printf("Reporte creado de forma correcta.");
             printf("\nPresione una tecla para continuar.");
+            getche();
         break;
         case 27:
         break;
@@ -147,14 +155,17 @@ getche();
 return 0;
 }
 
-char menu()
+char menu() // Menu del programa
 {
 char opcion;
     system("cls");
+    printf("\n--------------------------------------------------------------------------------\n");
+    printf("SSL Web Scraping v. 1.0 UTN FRBA");
     printf("\n[1] Listar en pantalla las especies cuyo porcentaje de variacion supera el 0,5.");
     printf("\n[2] Crear reporte de cotizaciones de compra y venta en archivo .CSV.");
-    printf("\n[3] Crear reporte de cotizaciones de compra y venta en archivo .html.");
-    printf("\n[ESS] Salir.");
+    printf("\n[3] Crear reporte de Especies cuyo porcentaje de variacion supera el 0,5 en formato HTML.");
+    printf("\n[ESC] Salir.");
+    printf("\n--------------------------------------------------------------------------------\n");
     opcion=getche();
 
 return opcion;
@@ -183,12 +194,15 @@ for(i=0, j=1; s[i]>47 && s[i]<58; ++i);
 return res;
 }
 
-void cargarEspecie(struct accion *accion,int campo,char s[1048576])
+void cargarEspecie(struct accion *accion,int campo,char s[1048576]) // Carga en la accion, el campo seleccionado, sacado de la cadena s.
 {
 int campoNum;
 double campoFloat;
-    switch(campo)
+    switch(campo)// Segun el campo ingresado por parametro, se cargara en la accion. Campo vencimiento descartado, ya que no aportaba información util.
     {
+    //Los campos float presentan un bug que sera corregido para la proxima version.
+    //Los numeros decimales no son tomados en cuenta para los campos cargados con atof. Algunos campos rompen con la funcion convertirFloat.
+    //Además hay un bug en montoOperado y cantidadOperada, ya que se copian datos que nada tienen que ver con la tabla, y no se sabe de donde salen.
     case 0:
         strcpy(accion->especie,s);
     break;
@@ -256,8 +270,7 @@ return;
 
 void mostrarEspecie(struct accion accion)
 {
-    printf("Especie\n");
-
+    printf("\n");
     printf("\nNombre de Especie:%s ",accion.especie);
     printf("\nCant. Nominal: %d ",accion.cantNominalA);
     printf("\nPrecio Compra: %.3f ",accion.precioCompra);
@@ -282,12 +295,12 @@ FILE *f;
 int i=0;
 f=fopen("Listado de cotizaciones compra y venta.csv","w");
 
-    fprintf(f,"Especie,Precio de compra,Precio de venta,Apertura,Precio maximo,Precio minimo");
+    fprintf(f,"Especie,Precio de compra,Precio de venta,Apertura,Precio maximo,Precio minimo"); // Crea el encabezado
 
     for(i=0;i<tam;i++)
     {
     fprintf(f,"\n");
-    fprintf(f,"%s,%f,%f,%f,%f,%f",acciones[i].especie,acciones[i].precioCompra,acciones[i].precioVenta,acciones[i].apertura,acciones[i].maximo,acciones[i].minimo);
+    fprintf(f,"%s,%f,%f,%f,%f,%f",acciones[i].especie,acciones[i].precioCompra,acciones[i].precioVenta,acciones[i].apertura,acciones[i].maximo,acciones[i].minimo); // Carga cada especie.
     }
 fclose(f);
 }
@@ -297,14 +310,14 @@ void crearHTML(struct accion acciones[],int tam)
 FILE *f;
 int i=0;
 f=fopen("Listado de especies.html","w");
-    fprintf(f,"<html>\n<body>");
-    fprintf(f,"<head><title>Mi primera página con estilo</title><style type=\"text/css\">table .critico{background-color: #ff0000 }</style></head>)");
-    fprintf(f,"<table border=1>\n<tr>");
-    fprintf(f,"\n<td>Especie</td><td>Cant. Nominal</td><td>Precio Compra</td><td>Precio Venta</td><td>Cant. Nominal</td><td>Ultimo</td><td>Variacion %</td><td>Apertura</td><td>Maximo</td><td>Minimo</td><td>Cierre Ant.</td><td>Vol. Nominal</td><td>Monto operado ($)</td><td>Cant. Ope</td><td>Hora Cotizacion</td>");
+    fprintf(f,"<html>\n<body>"); //Inicio de la pagina
+    fprintf(f,"<head><title>Web Scraping</title><style type=\"text/css\">table .critico{background-color: #ff0000 }</style></head>)"); // Estilo para colorear en rojo las filas.
+    fprintf(f,"<table border=1>\n<tr>"); // Inicia la tabla
+    fprintf(f,"\n<td>Especie</td><td>Cant. Nominal</td><td>Precio Compra</td><td>Precio Venta</td><td>Cant. Nominal</td><td>Ultimo</td><td>Variacion %</td><td>Apertura</td><td>Maximo</td><td>Minimo</td><td>Cierre Ant.</td><td>Vol. Nominal</td><td>Monto operado ($)</td><td>Cant. Ope</td><td>Hora Cotizacion</td>");//encabezado
     fprintf(f,"\n</tr>");
         for(i=0;i<tam;i++)
         {
-            if(acciones[i].precioCompra<acciones[i].apertura && acciones[i].precioVenta<acciones[i].apertura)
+            if(acciones[i].precioCompra<acciones[i].apertura && acciones[i].precioVenta<acciones[i].apertura) // Si el precio de compra y venta son menores al precio de apertura, la fila se pinta de rojo
             {
             fprintf(f,"\n<tr class=\"critico\">");
             fprintf(f,"<td>%s</td><td>%d</td><td>%.3f</td><td>%.3f</td><td>%d</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td><td>%s</td><td>%d</td><td>%s</td>",acciones[i].especie,acciones[i].cantNominalA,acciones[i].precioCompra,acciones[i].precioVenta,acciones[i].cantNominalB,acciones[i].ultimo,acciones[i].variacion,acciones[i].apertura,acciones[i].maximo,acciones[i].minimo,acciones[i].cierreAnterior,acciones[i].volNominal,acciones[i].montoOperado,acciones[i].cantidadOperada,acciones[i].horas);
