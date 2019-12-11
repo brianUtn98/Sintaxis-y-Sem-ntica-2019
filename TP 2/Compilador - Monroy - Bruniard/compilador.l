@@ -31,7 +31,7 @@ void errorLexico();
 							}; // Debo guardar el valor, para poder acceder desde YACC, además se realiza la comprobación de longitud.
 ":="						return ASIGNACION;
 "+"							return SUMA;
-"-"							return RESTA;					
+"-"							return	RESTA;					
 "("							return PAREN_IZQ;
 ")"							return PAREN_DER;
 ";"							return PUNTOYCOMA;
@@ -45,6 +45,10 @@ void errorMaximosCaracteres()
 {
 printf("\nEl identificador sobrepasa la cantidad máxima de caracteres en la linea %d",yylineno);
 }
+
+void yyerror (char const *s) {
+   printf ("Error al compilar");
+ }
 
 void errorLexico()
 {
@@ -70,10 +74,11 @@ scanf("%d",&opcion);
 		}
 		else
 		{
+		printf("Comenzando a parsear");
 		yyin=archivo;
 		yyparse();
 		fclose(archivo);
 		}
 	}
-	
+return 0;
 }
