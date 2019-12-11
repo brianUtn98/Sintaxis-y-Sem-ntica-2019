@@ -46,39 +46,9 @@ void errorMaximosCaracteres()
 printf("\nEl identificador sobrepasa la cantidad máxima de caracteres en la linea %d",yylineno);
 }
 
-void yyerror (char const *s) {
-   printf ("Error al compilar");
- }
 
 void errorLexico()
 {
 printf("\Error lexico en linea %d",yylineno);
 }
 
-int main(int argc,char *argv)
-{
-int opcion;
-printf("Elija modo lectura de Archivo (1) o Modo estandar (2)");
-scanf("%d",&opcion);
-	if(opcion!=1)
-	{
-	printf("Se ha ejecutado en modo entrada estandar. Escriba el codigo de su programa de forma manual.");
-	yyparse();
-	}
-	else
-	{
-		FILE *archivo=fopen("source.mk","r");
-		if(archivo==NULL){
-		printf("\nNo se pudo abrir el argchivo.");
-		return 1;
-		}
-		else
-		{
-		printf("Comenzando a parsear");
-		yyin=archivo;
-		yyparse();
-		fclose(archivo);
-		}
-	}
-return 0;
-}

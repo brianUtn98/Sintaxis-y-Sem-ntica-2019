@@ -6,6 +6,7 @@
 	
 	extern int yylineno;
 	extern int yylex();
+	extern FILE *yyin;
 	extern void yyerror(const char*);
 	int yywrap();
 	
@@ -65,6 +66,7 @@
 programa: INICIO {tablaDeSimbolos=iniciarTS(tablaDeSimbolos);} sentencias FIN{cerrarPrograma();};
 
 sentencias: sentencias sentencia | sentencia;
+
 sentencia: 	LEER {flagR=1;} PAREN_IZQ listaIdentificadores PAREN_DER PUNTOYCOMA {
 	tablaDeSimbolos=agregarSimbolos(identificadores,tablaDeSimbolos);
 	flagR=0;} |
@@ -72,12 +74,16 @@ sentencia: 	LEER {flagR=1;} PAREN_IZQ listaIdentificadores PAREN_DER PUNTOYCOMA 
 			valExpresiones=limpiarListaExpresiones(valExpresiones);
 			flagW=0;} |
 			IDENTIFICADOR ASIGNACION expresion PUNTOYCOMA {asignarValorASimbolo(tablaDeSimbolos,$1,$2);};
+			
 listaExpresiones: 	expresion {if(flagW==1) valExpresiones=agregarValor(valExpresiones,$1);} COMA listaExpresiones {} |
 					expresion {if(flagW==1) valExpresiones=agregarValor(valExpresiones,$1);};
+					
 listaIdentificadores: IDENTIFICADOR {if(flagR==1) identificadores=agregarIdentificador(identificadores,$1);} COMA listaIdentificadores |   IDENTIFICADOR {if(flagR==1) identificadores=agregarIdentificador(identificadores,$1);};
+
 expresion:	expresion SUMA primaria1 {$$= $1 + $3;} |
 			expresion RESTA primaria1 {$$= $1 - $3;} |
 			primaria1 {$$=$1;};
+			
 primaria1:	primaria2 {$$ = $1;};
 
 primaria2: 	IDENTIFICADOR{
@@ -103,11 +109,14 @@ primaria2: 	IDENTIFICADOR{
 
 void cerrarPrograma(){
 printf("\n Se ha terminado la ejecución del programa exitosamente");
+getche();
 exit(0);
 }
 
 Simbolo *iniciarTS(Simbolo *lista)
 {
+printf("\n Iniciando tabla de simbolos...");
+getche();
 lista=NULL;
 Simbolo *inicio,*fin,*leer,*escribir;
 inicio=(Simbolo*) malloc (sizeof(Simbolo));
@@ -119,11 +128,14 @@ escribir=(Simbolo*) malloc (sizeof(Simbolo));
 	strcpy(fin->id,"fin");
 	strcpy(leer->id,"leer");
 	strcpy(escribir->id,"escribir");
+printf("\n Tabla de simbolos iniciada correctamente.");
+getche();
 return lista;
 }
 
 Simbolo *agregarSimbolo(Simbolo *lista,Simbolo *nuevoSimbolo)
 {
+printf("\nAgregando simbolo a la tabla de simbolos.");
 Simbolo *aux;
 nuevoSimbolo->sgte=NULL;
 	if(lista == NULL){
@@ -275,10 +287,36 @@ void errorPalabraReservada(char nombreId[])
 printf("El identificador %s es palabra reservada en linea %d",nombreId,yylineno);
 exit(0);
 }
-
-
  
- int yywrap()
- {
-return 1;
+void yyerror (char const *s) {
+   printf ("Error al compilar");
  }
+ 
+ int main(int argc,char *argv)
+{
+int opcion;
+printf("Elija modo lectura de Archivo (1) o Modo estandar (2)");
+scanf("%d",&opcion);
+	if(opcion!=1)
+	{
+	printf("Se ha ejecutado en modo entrada estandar. Escriba el codigo de su programa de forma manual.");
+	yyin=stdin;
+	yyparse();
+	}
+	else
+	{
+		FILE *archivo=fopen("source.mk","r");
+		if(archivo==NULL){
+		printf("\nNo se pudo abrir el argchivo.");
+		return 1;
+		}
+		else
+		{
+		printf("Comenzando a parsear");
+		yyin=archivo;
+		yyparse();
+		fclose(archivo);
+		}
+	}
+return 0;
+}
