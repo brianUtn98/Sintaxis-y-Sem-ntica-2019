@@ -1,0 +1,1 @@
+La carpeta es un poco un lío, ya que descargué un flex y bison que requiere de todos estos archivos, por alguna razón los portables que descargamos de tu twitter no funcionaban.
