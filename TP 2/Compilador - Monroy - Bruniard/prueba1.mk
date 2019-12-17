@@ -1,0 +1,3 @@
+inicio
+variableConExcesoDeCaracteres12345:=3;
+fin

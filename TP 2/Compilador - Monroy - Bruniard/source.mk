@@ -1,3 +1,0 @@
-inicio
-asdasdasdASDAsdasdasdasdasdadasdasda:=3;
-fin
